@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -10,7 +9,6 @@ async function bootstrap() {
 
   const authService = app.get(AuthService);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   const existAdmin = await authService['userRepository'].findOne({
     where: { username: 'admin' },
   });
@@ -22,7 +20,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:4200', // Fronted url
-    methods: 'GET,HEAD,PUT,POST,DELETE',
+    methods: 'GET,PUT,POST,DELETE',
     credentials: true,
   });
 

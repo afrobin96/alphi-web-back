@@ -27,12 +27,12 @@ export class AuthService {
   async login(username: string, password: string) {
     const user = await this.validateUser(username, password);
 
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) return 'Credenciales invalidas';
 
     const payload = { sub: user.id, username: user.username, role: user.role };
 
     return {
-      acces_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
         username: user.username,
