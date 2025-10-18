@@ -1,4 +1,5 @@
 import { Member } from 'src/member/member.entity';
+import { Project } from 'src/project/project.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

@@ -8,6 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { ClientModule } from './client/client.module';
 import { TeamModule } from './team/team.module';
 import { MemberModule } from './member/member.module';
+import { ProjectModule } from './project/project.module';
+import { TaskModule } from './task/task.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -33,6 +36,9 @@ import { MemberModule } from './member/member.module';
     ClientModule,
     TeamModule,
     MemberModule,
+    ProjectModule,
+    TaskModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
