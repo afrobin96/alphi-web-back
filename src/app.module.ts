@@ -11,6 +11,7 @@ import { MemberModule } from './member/member.module';
 import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 import { PaymentModule } from './payment/payment.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { PaymentModule } from './payment/payment.module';
     ProjectModule,
     TaskModule,
     PaymentModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

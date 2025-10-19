@@ -33,7 +33,18 @@ async function bootstrap() {
       'Documentación de la API del proyecto (NestJS + Angular) - Alphi Web',
     )
     .setVersion('1.0')
-    .addTag('Contact') // puedes agregar más tags luego
+    .addTag('Contact')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Ingrese el token JWT',
+        in: 'header',
+      },
+      'access-token', // nombre que usaremos más adelante
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

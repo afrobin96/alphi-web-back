@@ -15,6 +15,6 @@ export class Member {
   @Column()
   email: string;
 
-  @ManyToOne(() => Team, (team) => team.members)
+  @ManyToOne(() => Team, (team) => team.members, { onDelete: 'SET NULL' })
   team: Team;
 }

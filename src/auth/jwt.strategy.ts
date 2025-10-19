@@ -8,11 +8,11 @@ import { User } from './user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService) {
+  constructor(private config: ConfigService) {
     super({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get<string>('JTW_SECRET'),
+      secretOrKey: config.get<string>('JWT_SECRET'),
       ignoeExpiration: false,
     });
   }
