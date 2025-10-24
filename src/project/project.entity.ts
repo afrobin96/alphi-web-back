@@ -6,10 +6,10 @@ import {
   Entity,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export type ProjectStatus = 'active' | 'completed' | 'cancelled';
 @Entity()
 export class Project {
   @PrimaryGeneratedColumn()
@@ -18,18 +18,34 @@ export class Project {
   @Column()
   name: string;
 
-  @Column()
-  status: 'active' | 'completed' | 'cancelled';
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-  @Column({ type: 'date', nullable: true })
-  endDate: Date;
+  @Column({
+    type: 'enum',
+    enum: ['active', 'completed', 'cancelled'],
+    default: 'active',
+  })
+  status: ProjectStatus;
 
-  @OneToMany(() => Client, (client) => client.projects)
+  @ManyToOne(() => Client, (client) => client.projects, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   client: Client;
 
-  @ManyToOne(() => Team, (team) => team.projects, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Team, (team) => team.projects, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   team: Team;
 
   @ManyToMany(() => Task, (task) => task.project)
   tasks: Task[];
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  completedAt?: Date;
 }
