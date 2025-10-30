@@ -13,6 +13,6 @@ export class Team {
   @OneToMany(() => Member, (member) => member.team)
   members: Member[];
 
-  @OneToMany(() => Project, (project) => project.client)
+  @OneToMany(() => Project, (project) => project.team)
   projects: Project[];
 }
