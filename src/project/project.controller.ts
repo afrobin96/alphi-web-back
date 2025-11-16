@@ -15,8 +15,10 @@ import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { AssignDto } from './dto/assign.dto';
 import { ProjectStatus } from './project.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('project')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}

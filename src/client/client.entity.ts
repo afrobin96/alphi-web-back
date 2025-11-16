@@ -15,6 +15,9 @@ export class Client {
   @Column({ nullable: true })
   phone?: string;
 
+  @Column({ nullable: true })
+  company?: string;
+
   @OneToMany(() => Project, (project) => project.client)
   projects: Project[];
 }
