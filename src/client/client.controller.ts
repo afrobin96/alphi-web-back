@@ -13,8 +13,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('client')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}

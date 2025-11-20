@@ -13,8 +13,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TeamService } from './team.service';
 import { CreateTeamDTO } from './dto/create-team.dto';
 import { UpdateTeamDTO } from './dto/update-team.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('team')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
