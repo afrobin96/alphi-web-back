@@ -21,7 +21,7 @@ export class MemberService {
     const member = this.memberRepo.create({
       name: dto.name,
       email: dto.email,
-      role: dto.rol,
+      rol: dto.rol,
     });
 
     const saved = await this.memberRepo.save(member);
@@ -35,13 +35,13 @@ export class MemberService {
   }
 
   findAll() {
-    return this.memberRepo.find({ relations: ['team'] });
+    return this.memberRepo.find({ relations: ['teamId'] });
   }
 
   async findOne(id: number) {
     const member = await this.memberRepo.findOne({
       where: { id },
-      relations: ['team'],
+      relations: ['teamId'],
     });
     if (!member) {
       throw new NotFoundException('Miembro no encontrado');
@@ -53,7 +53,7 @@ export class MemberService {
     const member = await this.findOne(id);
     Object.assign(member, {
       name: dto.name ?? member.name,
-      role: dto.rol ?? member.role,
+      role: dto.rol ?? member.rol,
       email: dto.email ?? member.email,
     });
 
@@ -76,7 +76,7 @@ export class MemberService {
     if (!team) {
       throw new BadRequestException('No se encuentra el equipo');
     }
-    member.team = team;
+    member.teamId = team;
     await this.memberRepo.save(member);
     return this.findOne(memberId);
   }

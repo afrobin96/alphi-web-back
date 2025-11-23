@@ -10,7 +10,7 @@ export class Member {
   name: string;
 
   @Column()
-  role: string;
+  rol: string;
 
   @Column()
   email: string;
@@ -19,5 +19,5 @@ export class Member {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  team?: Team;
+  teamId?: Team;
 }

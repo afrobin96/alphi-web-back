@@ -41,7 +41,7 @@ export class TeamService {
     const team = await this.findOne(teamId);
     const member = await this.memberRepo.findOne({ where: { id: memberId } });
     if (!member) throw new NotFoundException('No se ha encontrado el miembro');
-    member.team = team;
+    member.teamId = team;
     return this.memberRepo.save(member);
   }
 
