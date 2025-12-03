@@ -1,7 +1,9 @@
 import { Member } from 'src/member/member.entity';
+import { Project } from 'src/project/project.entity';
 import { Task } from 'src/task/task.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -14,8 +16,11 @@ export class Payment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Member, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Member, { nullable: false, onDelete: 'CASCADE' })
   member: Member;
+
+  @ManyToOne(() => Project, { nullable: false, onDelete: 'CASCADE' })
+  project: Project;
 
   @ManyToMany(() => Task)
   @JoinTable()
@@ -28,5 +33,8 @@ export class Payment {
   status: 'pending' | 'paid' | 'cancelled';
 
   @Column({ nullable: true })
-  note: string;
+  note?: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
