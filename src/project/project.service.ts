@@ -56,7 +56,6 @@ export class ProjectService {
         project.client = client;
       }
     }
-    console.log('Updating project with DTO:', dto.teamId);
     // Manejar teamId
     if (dto.teamId || dto.teamId === null) {
       if (dto.teamId === null) {
