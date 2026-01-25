@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 
 export class UpdateProjectDto {
   @IsOptional()
@@ -11,4 +11,12 @@ export class UpdateProjectDto {
 
   @IsOptional()
   status?: 'active' | 'completed' | 'cancelled';
+
+  @IsOptional()
+  @IsNumber()
+  clientId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  teamId?: number;
 }

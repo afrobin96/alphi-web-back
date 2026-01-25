@@ -16,6 +16,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { AssignDto } from './dto/assign.dto';
 import { ProjectStatus } from './project.entity';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Controller('project')
 @ApiBearerAuth('access-token')
@@ -39,7 +40,7 @@ export class ProjectController {
   }
 
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateProjectDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProjectDto) {
     return this.projectService.update(id, dto);
   }
 

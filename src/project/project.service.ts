@@ -31,7 +31,7 @@ export class ProjectService {
   async findOne(id: number) {
     const project = await this.projectRepo.findOne({
       where: { id },
-      relations: ['client', 'team', 'task'],
+      relations: ['client', 'team', 'tasks'],
     });
     if (!project) throw new NotFoundException('project not found');
     return project;
@@ -39,7 +39,35 @@ export class ProjectService {
 
   async update(id: number, dto: UpdateProjectDto) {
     const project = await this.findOne(id);
-    Object.assign(project, dto);
+    // Actualizar propiedades básicas
+    if (dto.name) project.name = dto.name;
+    if (dto.description !== undefined) project.description = dto.description;
+    if (dto.status) project.status = dto.status;
+
+    // Manejar clientId
+    if (dto.clientId || dto.clientId === null) {
+      if (dto.clientId === null) {
+        project.client = null;
+      } else {
+        const client = await this.clientRepo.findOne({
+          where: { id: dto.clientId },
+        });
+        if (!client) throw new BadRequestException('Client not found');
+        project.client = client;
+      }
+    }
+    console.log('Updating project with DTO:', dto.teamId);
+    // Manejar teamId
+    if (dto.teamId || dto.teamId === null) {
+      if (dto.teamId === null) {
+        project.team = null;
+      } else {
+        const team = await this.teamRepo.findOne({ where: { id: dto.teamId } });
+        if (!team) throw new BadRequestException('Team not found');
+        project.team = team;
+      }
+    }
+
     return this.projectRepo.save(project);
   }
 

@@ -4,8 +4,8 @@ import { Team } from 'src/team/team.entity';
 import {
   Column,
   Entity,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -32,15 +32,15 @@ export class Project {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  client: Client;
+  client: Client | null;
 
   @ManyToOne(() => Team, (team) => team.projects, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  team: Team;
+  team: Team | null;
 
-  @ManyToMany(() => Task, (task) => task.project)
+  @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
