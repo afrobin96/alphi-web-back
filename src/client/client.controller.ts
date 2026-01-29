@@ -38,7 +38,7 @@ export class ClientController {
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateClientDto) {
-    void this.clientService.update(id, dto);
+    return this.clientService.update(id, dto);
   }
 
   @Delete(':id')
