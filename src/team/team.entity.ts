@@ -10,6 +10,9 @@ export class Team {
   @Column()
   name: string;
 
+  @Column()
+  description: string;
+
   @OneToMany(() => Member, (member) => member.teamId)
   members: Member[];
 
