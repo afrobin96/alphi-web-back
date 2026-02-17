@@ -126,12 +126,13 @@ export class PaymentService {
     const tasks = await this.taskRepo.find({
       where: {
         project: { id: projectId } as any,
-        member: {} as any,
       },
       relations: ['member'],
     });
 
-    const membersFromTasks = tasks.map((task) => task.member).filter(Boolean);
+    const membersFromTasks = tasks
+      .map((task) => task.member)
+      .filter((member): member is Member => member !== null);
 
     const map = new Map<number, Member>();
     membersFromTeam.forEach((member) => map.set(member.id, member));

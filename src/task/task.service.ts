@@ -64,25 +64,33 @@ export class TaskService {
     });
 
     if (dto.projectId !== undefined) {
-      const project = await this.projectRepo.findOne({
-        where: { id: dto.projectId },
-      });
+      if (dto.projectId === null) {
+        task.project = null;
+      } else {
+        const project = await this.projectRepo.findOne({
+          where: { id: dto.projectId },
+        });
 
-      if (!project) {
-        throw new BadRequestException('No se encontro proyecto');
+        if (!project) {
+          throw new BadRequestException('No se encontro proyecto');
+        }
+        task.project = project;
       }
-      task.project = project;
     }
 
     if (dto.memberId !== undefined) {
-      const member = await this.memberRepo.findOne({
-        where: { id: dto.memberId },
-      });
+      if (dto.memberId === null) {
+        task.member = null;
+      } else {
+        const member = await this.memberRepo.findOne({
+          where: { id: dto.memberId },
+        });
 
-      if (!member) {
-        throw new BadRequestException('No se encontro Miembro');
+        if (!member) {
+          throw new BadRequestException('No se encontro Miembro');
+        }
+        task.member = member;
       }
-      task.member = member;
     }
 
     await this.taskRepo.save(task);
@@ -95,31 +103,41 @@ export class TaskService {
     return this.taskRepo.remove(task);
   }
 
-  async assignMember(id: number, memberId: number) {
+  async assignMember(id: number, memberId: number | null) {
     const task = await this.findOne(id);
-    const member = await this.memberRepo.findOne({ where: { id: memberId } });
 
-    if (!member) {
-      throw new BadRequestException('No se encontro miembro');
+    if (memberId === null) {
+      task.member = null;
+    } else {
+      const member = await this.memberRepo.findOne({ where: { id: memberId } });
+
+      if (!member) {
+        throw new BadRequestException('No se encontro miembro');
+      }
+
+      task.member = member;
     }
-
-    task.member = member;
 
     await this.taskRepo.save(task);
     return this.findOne(id);
   }
 
-  async assignProject(id: number, projectId: number) {
+  async assignProject(id: number, projectId: number | null) {
     const task = await this.findOne(id);
-    const project = await this.projectRepo.findOne({
-      where: { id: projectId },
-    });
 
-    if (!project) {
-      throw new BadRequestException('No se encontro proyecto');
+    if (projectId === null) {
+      task.project = null;
+    } else {
+      const project = await this.projectRepo.findOne({
+        where: { id: projectId },
+      });
+
+      if (!project) {
+        throw new BadRequestException('No se encontro proyecto');
+      }
+
+      task.project = project;
     }
-
-    task.project = project;
 
     await this.taskRepo.save(task);
     return this.findOne(id);
@@ -128,6 +146,7 @@ export class TaskService {
   async changeStatus(id: number, status: string) {
     const allowed = [
       'to_do',
+      'in_course',
       'in_review',
       'reopened',
       'completed',

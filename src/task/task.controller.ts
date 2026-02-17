@@ -54,7 +54,8 @@ export class TaskController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AssignMemberDto,
   ) {
-    return this.taskService.assignMember(id, dto.memberId);
+    const memberId = dto.memberId === null ? null : dto.memberId;
+    return this.taskService.assignMember(id, memberId as number | null);
   }
 
   @Post(':id/project')
@@ -62,7 +63,8 @@ export class TaskController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AssignProjectDto,
   ) {
-    return this.taskService.assignProject(id, dto.projectId);
+    const projectId = dto.projectId === null ? null : dto.projectId;
+    return this.taskService.assignProject(id, projectId as number | null);
   }
 
   @Post(':id/status')

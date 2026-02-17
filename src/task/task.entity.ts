@@ -4,6 +4,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export type TaskStatus =
   | 'to_do'
+  | 'in_course'
   | 'in_review'
   | 'reopened'
   | 'completed'
@@ -27,6 +28,7 @@ export class Task {
     type: 'enum',
     enum: [
       'to_do',
+      'in_course',
       'in_review',
       'reopened',
       'completed',
@@ -41,8 +43,8 @@ export class Task {
     nullable: true,
     onDelete: 'CASCADE',
   })
-  project: Project;
+  project: Project | null;
 
-  @ManyToOne(() => Member, { onDelete: 'SET NULL' })
-  member: Member;
+  @ManyToOne(() => Member, { onDelete: 'SET NULL', nullable: true })
+  member: Member | null;
 }

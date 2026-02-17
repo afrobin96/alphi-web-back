@@ -13,10 +13,8 @@ export class CreateTaskDto {
   value?: number;
 
   @IsOptional()
-  @IsNumber()
-  projectId?: number;
+  projectId?: number | null;
 
   @IsOptional()
-  @IsNumber()
-  memberId?: number;
+  memberId?: number | null;
 }
