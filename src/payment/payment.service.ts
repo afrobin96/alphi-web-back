@@ -23,7 +23,7 @@ export class PaymentService {
   ) {}
 
   findAll() {
-    return this.paymentRepo.find({ relations: ['member', 'project'] });
+    return this.paymentRepo.find({ relations: ['member', 'project', 'tasks'] });
   }
 
   async findOne(id: number) {
@@ -50,7 +50,7 @@ export class PaymentService {
       where: {
         project: { id: projectId } as any,
         member: { id: memberId } as any,
-        status: 'completed',
+        status: 'payment_pending',
       },
       relations: ['project', 'member'],
     });
@@ -78,7 +78,7 @@ export class PaymentService {
       where: {
         project: { id: projectId } as any,
         member: { id: memberId } as any,
-        status: 'completed',
+        status: 'payment_pending',
       },
     });
 
@@ -96,13 +96,29 @@ export class PaymentService {
       status: 'pending',
     });
 
-    return this.paymentRepo.save(payment);
+    const savedPayment = await this.paymentRepo.save(payment);
+
+    await Promise.all(
+      tasks.map((task) =>
+        this.taskRepo.save({ ...task, status: 'payment_pending' }),
+      ),
+    );
+
+    return savedPayment;
   }
 
   async changeStatus(id: number, dto: ChangeStatusDto) {
     const payment = await this.findOne(id);
 
     payment.status = dto.status;
+
+    if (dto.status === 'paid') {
+      await Promise.all(
+        payment.tasks.map((task) =>
+          this.taskRepo.save({ ...task, status: 'paid' }),
+        ),
+      );
+    }
 
     return this.paymentRepo.save(payment);
   }
