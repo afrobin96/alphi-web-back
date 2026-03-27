@@ -29,7 +29,7 @@ export class Payment {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   total: number;
 
-  @Column({ default: 'pending' })
+  @Column({ type: 'varchar', default: 'pending' })
   status: 'pending' | 'paid' | 'cancelled';
 
   @Column({ nullable: true })

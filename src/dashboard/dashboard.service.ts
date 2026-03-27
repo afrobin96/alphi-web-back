@@ -5,7 +5,7 @@ import { Member } from 'src/member/member.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { Project } from 'src/project/project.entity';
 import { Task } from 'src/task/task.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class DashboardService {
@@ -23,14 +23,16 @@ export class DashboardService {
       clients,
       members,
       tasksPending,
-      taskCompleted,
-      paymentPending,
+      tasksCompleted,
+      paymentsPending,
     ] = await Promise.all([
       this.projectRepository.count({ where: { status: 'active' } }),
       this.clientRepository.count(),
       this.memberRepository.count(),
       this.taskRepository.count({ where: { status: 'to_do' } }),
-      this.taskRepository.count({ where: { status: 'completed' } }),
+      this.taskRepository.count({
+        where: { status: In(['completed', 'payment_pending', 'paid']) },
+      }),
       this.paymentRepository.count({ where: { status: 'pending' } }),
     ]);
 
@@ -39,8 +41,8 @@ export class DashboardService {
       clients,
       members,
       tasksPending,
-      taskCompleted,
-      paymentPending,
+      tasksCompleted,
+      paymentsPending,
     };
   }
 }
