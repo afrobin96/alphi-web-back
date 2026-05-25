@@ -13,7 +13,6 @@ import { TaskModule } from './task/task.module';
 import { PaymentModule } from './payment/payment.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
-import { InstructionalDesignerController } from './instructional-designer/instructional-designer.controller';
 import { InstructionalDesignerModule } from './instructional-designer/instructional-designer.module';
 import { PdfService } from './pdf/pdf.service';
 
@@ -37,7 +36,6 @@ import { PdfService } from './pdf/pdf.service';
       }),
     }),
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     RedisModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -58,7 +56,7 @@ import { PdfService } from './pdf/pdf.service';
     DashboardModule,
     InstructionalDesignerModule,
   ],
-  controllers: [AppController, InstructionalDesignerController],
+  controllers: [AppController],
   providers: [AppService, PdfService],
 })
 export class AppModule {}

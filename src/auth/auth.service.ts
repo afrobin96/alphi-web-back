@@ -71,7 +71,9 @@ export class AuthService {
     plan: SubscriptionPlan = SubscriptionPlan.FREE,
   ) {
     const existing = await this.userRepository.findOne({ where: { username } });
-    if (existing) throw new ConflictException('El usuario ya existe');
+
+    if (existing !== null && existing !== undefined)
+      throw new ConflictException(`El usuario: ${username} ya existe`);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

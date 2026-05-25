@@ -6,7 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -30,6 +30,7 @@ export class AuthController {
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   createAdmin(@Body() body: LoginDto) {
     return this.authService.createAdminUser(body.username, body.password);
   }
@@ -38,10 +39,11 @@ export class AuthController {
   @Post('learner')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   createLearner(@Body() body: CreateLearnerDto) {
     return this.authService.createLearnerUser(
-      body.username!,
-      body.password!,
+      body.username,
+      body.password,
       body.plan,
     );
   }
@@ -51,7 +53,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.LEARNER)
   getProfile(@Request() req) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.authService.getProfile(req.user.id);
   }
 }
