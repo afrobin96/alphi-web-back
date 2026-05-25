@@ -9,7 +9,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TeamService } from './team.service';
 import { CreateTeamDTO } from './dto/create-team.dto';
 import { UpdateTeamDTO } from './dto/update-team.dto';
