@@ -12,7 +12,6 @@ import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 import { PaymentModule } from './payment/payment.module';
 import { DashboardModule } from './dashboard/dashboard.module';
-import { RedisModule } from '@nestjs-modules/ioredis';
 import { InstructionalDesignerModule } from './instructional-designer/instructional-designer.module';
 import { PdfService } from './pdf/pdf.service';
 
@@ -36,14 +35,14 @@ import { PdfService } from './pdf/pdf.service';
       }),
     }),
 
-    RedisModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'single',
-        url: config.get<string>('REDIS_URL') || 'redis://localhost:6379',
-      }),
-    }),
+    // RedisModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     type: 'single',
+    //     url: config.get<string>('REDIS_URL') || 'redis://localhost:6379',
+    //   }),
+    // }),
 
     ContactModule,
     AuthModule,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   Body,
@@ -19,10 +18,12 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/auth/user.entity';
 import { TokenGuard } from 'src/auth/guards/token.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('instructional-designer')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.LEARNER)
+@ApiBearerAuth('access-token')
 export class InstructionalDesignerController {
   constructor(
     private readonly instructionalDesignerService: InstructionalDesignerService,

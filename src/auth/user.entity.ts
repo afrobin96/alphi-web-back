@@ -49,7 +49,7 @@ export class User {
     enum: SubscriptionPlan,
     default: SubscriptionPlan.FREE,
   })
-  subscriptionPlan: SubscriptionPlan | undefined;
+  subscriptionPlan!: SubscriptionPlan;
 
   @Column({ type: 'timestamp', nullable: true })
   subscriptionExpiresAt: Date | null | undefined;
@@ -61,6 +61,12 @@ export class User {
   // Fecha de inicio del período mensual actual
   @Column({ type: 'timestamp', nullable: true })
   monthlyPeriodStart!: Date | null;
+
+  @Column({ default: 0 })
+  dailyTokensUsed!: number;
+
+  @Column({ type: 'date', nullable: true })
+  dailyPeriodDate!: string | null;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -50,6 +51,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   await app.listen(process.env.PORT ?? 3000);
-  console.log(`Swagger listo en: http://localhost:3001/api/docs`);
+  console.log(
+    `Swagger listo en: http://localhost:${process.env.PORT ?? 3000}/api/docs`,
+  );
 }
 bootstrap();

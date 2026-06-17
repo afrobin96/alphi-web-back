@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // Estimado conservador antes de llamar a la IA
 
 import {
@@ -12,8 +10,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PLAN_LIMITS, SubscriptionPlan, User } from '../user.entity';
 import { Repository } from 'typeorm';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
 
 // El descuento real ocurre DESPUÉS con los tokens reportados por la ia usada
 const ESTIMATED_COST = 800;
@@ -22,14 +18,12 @@ const ESTIMATED_COST = 800;
 export class TokenGuard implements CanActivate {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const user: User = req.user;
+    const user: User = context.switchToHttp().getRequest().user;
 
-    // Verificar que el plan no haya expirado si tiene plan de pago
+    // Verificar suscripción vigente
     if (
       user.subscriptionPlan !== SubscriptionPlan.FREE &&
       user.subscriptionExpiresAt &&
@@ -45,27 +39,32 @@ export class TokenGuard implements CanActivate {
       );
     }
 
-    const limits = PLAN_LIMITS[user.subscriptionPlan!];
+    const limits = PLAN_LIMITS[user.subscriptionPlan];
+    const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
 
-    // Verificar límite DIARIO desde Redis
-    const dailyKey = `tokens:daily:${user.id}`;
-    const dailyUsedRaw = await this.redis.get(dailyKey);
-    const dailyUsed = parseInt(dailyUsedRaw ?? '0', 10);
+    // Resetear tokens diarios si cambió el día
+    if (user.dailyPeriodDate !== today) {
+      await this.userRepository.update(user.id, {
+        dailyTokensUsed: 0,
+        dailyPeriodDate: today,
+      });
+      user.dailyTokensUsed = 0;
+    }
 
-    if (dailyUsed + ESTIMATED_COST > limits.daily) {
+    // Verificar límite diario
+    if (user.dailyTokensUsed + ESTIMATED_COST > limits.daily) {
       throw new HttpException(
         {
           message: `Alcanzaste el límite diario de ${limits.daily} tokens. Vuelve mañana o mejora tu plan.`,
           code: 'DAILY_LIMIT_REACHED',
-          dailyUsed,
+          dailyUsed: user.dailyTokensUsed,
           dailyLimit: limits.daily,
         },
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
-    // Verificar límite MENSUAL desde Postgres
-    // Reiniciar contador si cambió el mes
+    // Resetear tokens mensuales si cambió el mes
     const now = new Date();
     const periodStart = user.monthlyPeriodStart
       ? new Date(user.monthlyPeriodStart)
@@ -79,10 +78,11 @@ export class TokenGuard implements CanActivate {
       user.monthlyTokensUsed = 0;
     }
 
+    // Verificar límite mensual
     if (user.monthlyTokensUsed + ESTIMATED_COST > limits.monthly) {
       throw new HttpException(
         {
-          message: `Alcanzaste el límite mensual de ${limits.monthly} tokens. Espera el próximo período o mejora tu plan.`,
+          message: `Alcanzaste el límite mensual de ${limits.monthly} tokens.`,
           code: 'MONTHLY_LIMIT_REACHED',
           monthlyUsed: user.monthlyTokensUsed,
           monthlyLimit: limits.monthly,

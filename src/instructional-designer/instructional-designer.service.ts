@@ -1,23 +1,22 @@
-import { InjectRedis } from '@nestjs-modules/ioredis';
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/user.entity';
 import { Repository } from 'typeorm';
-import Redis from 'ioredis';
 import { CreateInstructionalDto } from './dto/create-instructional.dto';
 import * as aiProviderInterface from 'src/ai/ai-provider.interface';
 
 @Injectable()
 export class InstructionalDesignerService {
+  private readonly logger = new Logger(InstructionalDesignerService.name);
   constructor(
     @Inject(aiProviderInterface.AI_PROVIDER)
     private readonly aiProvider: aiProviderInterface.AiProvider,
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   // Generación principal.
@@ -40,24 +39,17 @@ export class InstructionalDesignerService {
 
   // Descuento real de tokens.
   private async deductTokens(user: User, tokens: number): Promise<void> {
-    // Redis — tokens del día con TTL hasta medianoche
-    const dailyKey = `tokens:daily:${user.id}`;
-    const now = new Date();
-    const midnight = new Date(now);
-    midnight.setHours(24, 0, 0, 0);
-    const ttl = Math.floor((midnight.getTime() - now.getTime()) / 1000);
+    const today = new Date().toISOString().split('T')[0];
 
-    const pipeline = this.redis.pipeline();
-    pipeline.incrby(dailyKey, tokens);
-    pipeline.expire(dailyKey, ttl);
-    await pipeline.exec();
+    // Si el día ya cambió desde el guard, reiniciar (caso borde)
+    const dailyTokensUsed =
+      user.dailyPeriodDate === today ? user.dailyTokensUsed + tokens : tokens;
 
-    // Postgres — tokens mensuales
-    await this.userRepository.increment(
-      { id: user.id },
-      'monthlyTokensUsed',
-      tokens,
-    );
+    await this.userRepository.update(user.id, {
+      dailyTokensUsed,
+      dailyPeriodDate: today,
+      monthlyTokensUsed: () => `"monthlyTokensUsed" + ${tokens}`,
+    });
   }
 
   // Prompt instruccional.
