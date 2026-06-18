@@ -1,27 +1,40 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from '../user.entity';
+import { User, UserRole } from '../user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+// Se crea una interfaz para el payload del JWT, que contiene la información que se incluirá en el token.
+interface JwtPayload {
+  id: number;
+  username: string;
+  role: UserRole;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private config: ConfigService) {
+  constructor(
+    private config: ConfigService,
+    @InjectRepository(User) private userRepository: Repository<User>,
+  ) {
     super({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: config.get<string>('JWT_SECRET'),
-      ignoeExpiration: false,
+      ignoreExpiration: false,
     });
   }
 
-  validate(payload: User) {
-    return {
-      userId: payload.id,
-      username: payload.username,
-      role: payload.role,
-    };
+  async validate(payload: JwtPayload): Promise<Omit<User, 'password'>> {
+    const user = await this.userRepository.findOne({
+      where: { id: payload.id },
+    });
+
+    if (!user)
+      throw new UnauthorizedException('Usuario no encontrado o eliminado');
+
+    const { ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

@@ -33,7 +33,11 @@ export class AuthService {
 
     if (!user) return 'Credenciales invalidas';
 
-    const payload = { sub: user.id, username: user.username, role: user.role };
+    const payload = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    };
 
     return {
       access_token: this.jwtService.sign(payload),

@@ -48,7 +48,7 @@ export class InstructionalDesignerService {
     await this.userRepository.update(user.id, {
       dailyTokensUsed,
       dailyPeriodDate: today,
-      monthlyTokensUsed: () => `"monthlyTokensUsed" + ${tokens}`,
+      monthlyTokensUsed: () => `${user.monthlyTokensUsed} + ${tokens}`,
     });
   }
 

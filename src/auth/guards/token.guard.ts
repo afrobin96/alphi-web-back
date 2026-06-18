@@ -77,7 +77,6 @@ export class TokenGuard implements CanActivate {
       });
       user.monthlyTokensUsed = 0;
     }
-
     // Verificar límite mensual
     if (user.monthlyTokensUsed + ESTIMATED_COST > limits.monthly) {
       throw new HttpException(
