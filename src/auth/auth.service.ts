@@ -44,6 +44,7 @@ export class AuthService {
       user: {
         id: user.id,
         username: user.username,
+        email: user.email,
         role: user.role,
         subscriptionPlan: user.subscriptionPlan,
       },
@@ -110,6 +111,7 @@ export class AuthService {
     return {
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
       subscriptionPlan: user.subscriptionPlan,
       subscriptionExpiresAt: user.subscriptionExpiresAt,
