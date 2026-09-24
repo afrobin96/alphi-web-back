@@ -26,7 +26,8 @@ export class InstructionalDesignerService {
     let result: { content: string; tokensUsed: number };
     try {
       result = await this.aiProvider.generate(prompt);
-    } catch {
+    } catch (error) {
+      this.logger.error('Error al llamar a la IA:', error);
       throw new InternalServerErrorException(
         'Error al conectar con la IA. Intenta de nuevo.',
       );

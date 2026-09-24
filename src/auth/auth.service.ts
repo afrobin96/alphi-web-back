@@ -1,10 +1,11 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SubscriptionPlan, User, UserRole } from './user.entity';
+import { PLAN_LIMITS, SubscriptionPlan, User, UserRole } from './user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'node_modules/bcryptjs';
@@ -108,6 +109,8 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
+    const limits = PLAN_LIMITS[user.subscriptionPlan];
+
     return {
       id: user.id,
       username: user.username,
@@ -115,9 +118,51 @@ export class AuthService {
       role: user.role,
       subscriptionPlan: user.subscriptionPlan,
       subscriptionExpiresAt: user.subscriptionExpiresAt,
+      dailyTokensUsed: user.dailyTokensUsed,
+      dailyLimit: limits.daily,
       monthlyTokensUsed: user.monthlyTokensUsed,
+      monthlyLimit: limits.monthly,
+      monthlyPeriodStart: user.monthlyPeriodStart,
       createdAt: user.createdAt,
     };
+  }
+
+  // Renovar tokens del plan gratuito. Solo se puede hacer una vez al mes.
+  async renewFree(userId: number) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    if (user.subscriptionPlan !== SubscriptionPlan.FREE) {
+      throw new BadRequestException(
+        'Este endpoint es solo para el plan gratuito.',
+      );
+    }
+
+    const now = new Date();
+    const periodStart = user.monthlyPeriodStart
+      ? new Date(user.monthlyPeriodStart)
+      : null;
+
+    // Bloquear si ya renovó este mes
+    const alreadyRenewed =
+      periodStart &&
+      now.getFullYear() === periodStart.getFullYear() &&
+      now.getMonth() === periodStart.getMonth();
+
+    if (alreadyRenewed) {
+      throw new BadRequestException(
+        'Ya renovaste tus tokens este mes. Vuelve el próximo mes.',
+      );
+    }
+
+    await this.userRepository.update(userId, {
+      monthlyTokensUsed: 0,
+      dailyTokensUsed: 0,
+      dailyPeriodDate: now.toISOString().split('T')[0],
+      monthlyPeriodStart: new Date(now.getFullYear(), now.getMonth(), 1),
+    });
+
+    return { message: 'Tokens renovados correctamente.' };
   }
 
   //  Actualizar plan lo llama el webhook de Stripe después.
@@ -125,14 +170,29 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
+    if (plan === SubscriptionPlan.FREE) {
+      throw new BadRequestException('No puedes suscribirte al plan gratuito.');
+    }
+
     const now = new Date();
     user.subscriptionPlan = plan;
     user.subscriptionExpiresAt = new Date(
       now.getTime() + 30 * 24 * 60 * 60 * 1000,
     );
     user.monthlyTokensUsed = 0;
+    user.dailyTokensUsed = 0;
+    user.dailyPeriodDate = now.toISOString().split('T')[0];
     user.monthlyPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    const limits = PLAN_LIMITS[plan];
+    return {
+      message: `Plan ${plan} activado correctamente.`,
+      subscriptionPlan: plan,
+      subscriptionExpiresAt: user.subscriptionExpiresAt,
+      dailyLimit: limits.daily,
+      monthlyLimit: limits.monthly,
+    };
   }
 }

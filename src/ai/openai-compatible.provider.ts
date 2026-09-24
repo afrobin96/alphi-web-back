@@ -16,6 +16,10 @@ export class OpenAiCompatibleProvider implements AiProvider {
     this.client = new OpenAI({
       apiKey: this.configService.get<string>('AI_API_KEY') || '',
       baseURL: this.configService.get<string>('AI_BASE_URL'),
+      defaultHeaders: {
+        'HTTP-Referer': 'http://localhost:4200',
+        'X-Title': 'AlphiWeb',
+      },
     });
   }
 
