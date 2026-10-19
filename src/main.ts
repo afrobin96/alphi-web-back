@@ -4,15 +4,35 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AuthService } from './auth/auth.service';
+import { ConfigService } from '@nestjs/config';
+import { UserRole } from './auth/user.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
   const authService = app.get(AuthService);
+  const configService = app.get(ConfigService);
+  const userRepo = authService['userRepository'];
 
-  const existAdmin = await authService['userRepository'].findOne({
-    where: { username: 'admin' },
+  const existSuperadmin = await userRepo.findOne({
+    where: { role: UserRole.SUPERADMIN },
   });
+
+  if (!existSuperadmin) {
+    const superUser =
+      configService.get<string>('SUPERADMIN_USERNAME') ?? 'superadmin';
+    const superPass = configService.get<string>('SUPERADMIN_PASSWORD');
+
+    if (!superPass) {
+      throw new Error(
+        'Define SUPERADMIN_PASSWORD en el .env para crear el superadmin inicial',
+      );
+    }
+    await authService.createSuperadminUser(superUser, superPass);
+    console.log('Superadmin creado');
+  }
+
+  const existAdmin = await userRepo.findOne({ where: { username: 'admin' } });
 
   if (!existAdmin) {
     await authService.createAdminUser('admin', 'admin');
@@ -21,7 +41,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:4200', // Fronted url
-    methods: 'GET,PUT,POST,DELETE',
+    methods: 'GET,PUT,POST,PATCH,DELETE',
     credentials: true,
   });
 

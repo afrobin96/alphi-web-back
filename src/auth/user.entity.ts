@@ -8,6 +8,7 @@ import {
 export enum UserRole {
   ADMIN = 'admin',
   LEARNER = 'learner',
+  SUPERADMIN = 'superadmin',
 }
 
 export enum SubscriptionPlan {
@@ -43,7 +44,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.ADMIN,
+    default: UserRole.LEARNER,
   })
   role!: UserRole;
 

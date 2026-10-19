@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PLAN_LIMITS, SubscriptionPlan, User, UserRole } from './user.entity';
@@ -32,7 +33,7 @@ export class AuthService {
   async login(username: string, password: string) {
     const user = await this.validateUser(username, password);
 
-    if (!user) return 'Credenciales invalidas';
+    if (!user) throw new UnauthorizedException('Credenciales inválidas');
 
     const payload = {
       id: user.id,
@@ -68,6 +69,24 @@ export class AuthService {
     });
 
     return this.userRepository.save(adminUser);
+  }
+
+  // Crear el usuario superadmin inicial (gestión de cuentas).
+  async createSuperadminUser(username: string, password: string) {
+    const existing = await this.userRepository.findOne({ where: { username } });
+
+    if (existing) throw new ConflictException('El usuario ya existe');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const superadmin = this.userRepository.create({
+      username,
+      password: hashedPassword,
+      role: UserRole.SUPERADMIN,
+      subscriptionPlan: SubscriptionPlan.FREE,
+    });
+
+    return this.userRepository.save(superadmin);
   }
 
   // Crear learner role.

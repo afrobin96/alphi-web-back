@@ -38,7 +38,7 @@ export class AuthController {
   // POST /auth/admin — solo admin puede crear admins
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Crear usuario admin (solo admin)' })
   createAdmin(@Body() body: LoginDto) {
@@ -48,7 +48,7 @@ export class AuthController {
   // POST /auth/learner — solo admin puede crear learners
   @Post('learner')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Crear usuario learner (solo admin)' })
   @ApiBody({
@@ -71,7 +71,7 @@ export class AuthController {
   // GET /auth/profile — learner y admin pueden ver su perfil
   @Get('profile')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.LEARNER)
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.LEARNER)
   @ApiOperation({ summary: 'Ver perfil del usuario autenticado' })
   getProfile(@Request() req) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -90,6 +90,7 @@ export class AuthController {
     description: 'Ya renovaste este mes o no eres plan FREE.',
   })
   renewFree(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.authService.renewFree(req.user.id);
   }
 
@@ -104,6 +105,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Plan activado correctamente.' })
   upgradePlan(@Body() body: UpgradePlanDto, @Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.authService.updateSubscriptionPlan(req.user.id, body.plan!);
   }
 }

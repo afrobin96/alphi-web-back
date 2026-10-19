@@ -14,6 +14,7 @@ import { PaymentModule } from './payment/payment.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { InstructionalDesignerModule } from './instructional-designer/instructional-designer.module';
 import { PdfService } from './pdf/pdf.service';
+import { SuperadminModule } from './superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { PdfService } from './pdf/pdf.service';
     PaymentModule,
     DashboardModule,
     InstructionalDesignerModule,
+    SuperadminModule,
   ],
   controllers: [AppController],
   providers: [AppService, PdfService],
