@@ -14,10 +14,14 @@ import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from 'src/auth/user.entity';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('client')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 

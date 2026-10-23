@@ -53,24 +53,6 @@ export class AuthService {
     };
   }
 
-  // Crear el usuario admin por primera vez si no existe.
-  async createAdminUser(username: string, password: string) {
-    const existing = await this.userRepository.findOne({ where: { username } });
-
-    if (existing) throw new ConflictException('El usuario ya existe');
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const adminUser = this.userRepository.create({
-      username,
-      password: hashedPassword,
-      role: UserRole.ADMIN,
-      subscriptionPlan: SubscriptionPlan.FREE,
-    });
-
-    return this.userRepository.save(adminUser);
-  }
-
   // Crear el usuario superadmin inicial (gestión de cuentas).
   async createSuperadminUser(username: string, password: string) {
     const existing = await this.userRepository.findOne({ where: { username } });
@@ -87,6 +69,24 @@ export class AuthService {
     });
 
     return this.userRepository.save(superadmin);
+  }
+
+  // Crear el usuario admin por primera vez si no existe.
+  async createAdminUser(username: string, password: string) {
+    const existing = await this.userRepository.findOne({ where: { username } });
+
+    if (existing) throw new ConflictException('El usuario ya existe');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const adminUser = this.userRepository.create({
+      username,
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+      subscriptionPlan: SubscriptionPlan.FREE,
+    });
+
+    return this.userRepository.save(adminUser);
   }
 
   // Crear learner role.

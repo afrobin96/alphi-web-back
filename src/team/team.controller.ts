@@ -14,10 +14,14 @@ import { TeamService } from './team.service';
 import { CreateTeamDTO } from './dto/create-team.dto';
 import { UpdateTeamDTO } from './dto/update-team.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/auth/user.entity';
 
 @Controller('team')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
